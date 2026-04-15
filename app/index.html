@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boutique Minimalista | Catálogo</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
+        .contenedor { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #111; text-transform: uppercase; letter-spacing: 2px; }
+        .producto { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .precio { color: #666; font-weight: bold; }
+        .stock { font-size: 0.9em; color: green; }
+        .mensaje { text-align: center; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Boutique Double RR</h1>
+        <div id="catalogo">
+            <p class="mensaje">Cargando productos desde la nube...</p>
+        </div>
+    </div>
+
+    <script>
+        // URL exacta de tu servidor en Render
+        const API_URL = 'https://boutique-minimalista-doublerr.onrender.com/catalogo/';
+
+        async function cargarProductos() {
+            const div = document.getElementById('catalogo');
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                
+                div.innerHTML = ''; // Limpiamos el mensaje de carga
+
+                // Si no hay colecciones en absoluto
+                if (data.length === 0) {
+                    div.innerHTML = '<p class="mensaje">No hay datos en la base de datos.</p>';
+                    return;
+                }
+
+                let hayProductos = false;
+
+                // Recorremos las colecciones y productos
+                data.forEach(coleccion => {
+                    coleccion.productos.forEach(prod => {
+                        hayProductos = true; // Confirmamos que encontramos al menos uno
+                        div.innerHTML += `
+                            <div class="producto">
+                                <h3>${prod.nombre} <br><small>(Colección: ${coleccion.nombre})</small></h3>
+                                <p class="precio">$${prod.precio_base} MXN</p>
+                                <p class="stock">Estado: Disponible en la nube 🌍</p>
+                            </div>
+                        `;
+                    });
+                });
+
+                // Si hay colecciones pero están vacías (sin productos)
+                if (!hayProductos) {
+                    div.innerHTML = '<p class="mensaje">Las colecciones existen, pero aún no tienen productos. ¡Agrega uno en Swagger!</p>';
+                }
+
+            } catch (e) {
+                console.error(e);
+                div.innerHTML = "<p class='mensaje' style='color:red;'>Error de conexión. Presiona F12 para ver la Consola.</p>";
+            }
+        }
+        
+        cargarProductos();
+    </script>
+</body>
+</html>
